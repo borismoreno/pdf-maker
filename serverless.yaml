@@ -1,0 +1,52 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: facturaagil
+service: serverless-example
+
+useDotenv: true
+
+plugins:
+  - serverless-offline
+  - serverless-plugin-scripts
+
+package:
+  exclude:
+    - .vscode/**
+    - .idea/**
+    - test/**
+    - build/**
+    - .build/**
+    - my-artifacts/**
+
+custom:
+  scripts:
+    hooks:
+      'after:package:createDeploymentArtifacts': >
+        printf "[after:package:createDeploymentArtifacts hook] Removing development dependencies " &&
+        (cd .serverless && unzip -qq serverless-example.zip -d serverless-example)          && printf "." &&
+        (cd .serverless && rm -rf serverless-example/node_modules)                       && printf "." &&
+        (cd .serverless/serverless-example && npm install --only=prod > /dev/null 2>&1)  && printf "." &&
+        (cd .serverless/serverless-example/ && zip -q -FSr ../serverless-example.zip .)     && printf ".\n" &&
+        rm -rf .serverless/serverless-example/ &&
+        printf "[after:package:createDeploymentArtifacts hook] Done\n"
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  environment:
+    DB_URI: ${env:DB_URI}
+    AWS_S3_REGION: ${env:AWS_S3_REGION}
+    AWS_S3_BUCKET_SECRET_ACCESS_KEY: ${env:AWS_S3_BUCKET_SECRET_ACCESS_KEY}
+    AWS_S3_BUCKET_ACCESS_KEY_ID: ${env:AWS_S3_BUCKET_ACCESS_KEY_ID}
+    AWS_S3_BUCKET_NAME: ${env:AWS_S3_BUCKET_NAME}
+
+
+functions:
+  main:
+    handler: dist/serverless.handler
+    events:
+      - http:
+          method: ANY
+          path: /
+      - http:
+          method: ANY
+          path: '{proxy+}'
