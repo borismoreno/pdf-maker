@@ -30,7 +30,7 @@ export const getFactura = async ({ factura }: ReportOptions): Promise<TDocumentD
                                 stack: [
                                     `${factura.direccionEstablecimiento}`,
                                     `Obligado a llevar Contabilidad ${factura.obligadoContabilidad}`,
-                                    `${factura.contribuyenteRimpe ? 'CONTRIBUYENTE REGIMEN RIMPE' : ''}`
+                                    `${factura.contribuyenteRimpe ? 'CONTRIBUYENTE REGIMEN RIMPE' : 'CONTRIBUYENTE REGIMEN GENERAL'}`
                                 ],
                                 fontSize: 10,
                                 bold: false
