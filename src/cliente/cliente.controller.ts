@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Request } from '@nestjs/common';
+import { Controller, Get, Header, Param, Request } from '@nestjs/common';
 import { ClienteService } from './cliente.service';
 import { Cliente } from './schemas/cliente.schema';
 import mongoose from 'mongoose';

@@ -7,6 +7,9 @@ import { PrinterModule } from './printer/printer.module';
 import { UploadModule } from './upload/upload.module';
 import { ComprobanteModule } from './comprobante/comprobante.module';
 import { SubscriberModule } from './subscriber/subscriber.module';
+import { AuthModule } from './auth/auth.module';
+import { UserModule } from './user/user.module';
+import { EmpresaModule } from './empresa/empresa.module';
 
 @Module({
     imports: [
@@ -20,7 +23,10 @@ import { SubscriberModule } from './subscriber/subscriber.module';
         PrinterModule,
         UploadModule,
         ComprobanteModule,
-        SubscriberModule
+        SubscriberModule,
+        AuthModule,
+        UserModule,
+        EmpresaModule
     ],
 })
 export class AppModule { }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, BadRequestException, Res } from '@nestjs/common';
+import { Controller, Get, Post, Body, Header } from '@nestjs/common';
 import { SubscriberService } from './subscriber.service';
 import { CreateSubscriberDto } from './dto/create-subscriber.dto';
 import { Subscriber } from './schemas/subscriber.schema';
@@ -9,14 +9,8 @@ export class SubscriberController {
     constructor(private readonly subscriberService: SubscriberService) { }
 
     @Post()
-    async create(@Body() createSubscriberDto: CreateSubscriberDto, @Res() res): Promise<IGenericResponse> {
-        const response = await this.subscriberService.create(createSubscriberDto);
-        if (!response.success) {
-            res.status(400).json(response);
-            return;
-        }
-        res.status(201).json(response);
-        return response;
+    async create(@Body() createSubscriberDto: CreateSubscriberDto): Promise<IGenericResponse> {
+        return this.subscriberService.create(createSubscriberDto);
     }
 
     @Get()

@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import serverlessExpress from '@codegenie/serverless-express';
 import { Callback, Context, Handler } from 'aws-lambda';
+// import * as cors from 'cors';
 
 let server: Handler;
 
@@ -10,6 +11,11 @@ async function bootstrap() {
     await app.init();
 
     const expressApp = app.getHttpAdapter().getInstance();
+    // expressApp.use(cors({
+    //     origin: ['https://www.cancha360.com', 'http://localhost:4321'], // Allow all origins
+    //     methods: 'GET,POST,OPTIONS',
+    //     allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
+    // }));
     return serverlessExpress({ app: expressApp });
 }
 
