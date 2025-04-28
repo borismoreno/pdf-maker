@@ -25,7 +25,9 @@ export class AuthController {
     ) {
         const user = await this.authService.validateUser(body.email, body.password);
         if (!user) {
-            return { message: 'Credenciales inválidas' };
+            return response.status(401).send({
+                message: 'Credenciales Inválidas',
+            });
         }
         const loginResponse = await this.authService.login(user);
         response.cookie('access_token', loginResponse.token, {
@@ -43,7 +45,6 @@ export class AuthController {
         @Req() req,
         @Res() response: Response,
     ) {
-        console.log('logout');
         response.clearCookie('access_token', {
             httpOnly: this.cookieHttpOnly,
             secure: this.cookieSecure, // Set to true if using HTTPS
