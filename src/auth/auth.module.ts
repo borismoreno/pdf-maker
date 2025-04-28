@@ -18,7 +18,7 @@ import { EmpresaModule } from 'src/empresa/empresa.module';
         JwtModule.register({
             secret: process.env.JWT_SECRET,
             // secret: 'SEED-PRODUCCION',
-            signOptions: { expiresIn: '15m' },
+            signOptions: { expiresIn: '600m' },
         }),
         UserModule,
         EmpresaModule,

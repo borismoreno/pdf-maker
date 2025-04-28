@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Header } from '@nestjs/common';
+import { Controller, Get, Post, Body, Header, Response } from '@nestjs/common';
 import { SubscriberService } from './subscriber.service';
 import { CreateSubscriberDto } from './dto/create-subscriber.dto';
 import { Subscriber } from './schemas/subscriber.schema';
@@ -14,6 +14,7 @@ export class SubscriberController {
     }
 
     @Get()
+    @Header('Access-Control-Allow-Origin', '*')
     async findAll(): Promise<Subscriber[]> {
         return this.subscriberService.findAll();
     }

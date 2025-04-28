@@ -10,8 +10,8 @@ export class ClienteService {
         private clienteModel: mongoose.Model<Cliente>
     ) { }
 
-    async findAll(): Promise<Cliente[]> {
-        const clientes = await this.clienteModel.find().exec();
+    async findAll(usuarioId: mongoose.Types.ObjectId): Promise<Cliente[]> {
+        const clientes = await this.clienteModel.find({ usuario: usuarioId }).exec();
         return clientes;
     }
 

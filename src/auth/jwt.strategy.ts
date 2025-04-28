@@ -10,8 +10,12 @@ import mongoose from 'mongoose';
 export class JwtStrategy extends PassportStrategy(Strategy) {
     constructor(private readonly userService: UserService, private readonly authService: AuthService) {
         super({
-            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-            // secretOrKey: 'SEED-PRODUCCION',
+            jwtFromRequest: ExtractJwt.fromExtractors([(request) => {
+                if (!request || !request.cookies) {
+                    return null;
+                }
+                return request.cookies.access_token;
+            }]),
             secretOrKey: process.env.JWT_SECRET,
             ignoreExpiration: false,
         });
