@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import mongoose from 'mongoose';
 import { ClienteService } from 'src/cliente/cliente.service';
+import { GetClientDto } from 'src/cliente/dto/get-client.dto';
 import { Cliente } from 'src/cliente/schemas/cliente.schema';
 import { ComprobanteService } from 'src/comprobante/comprobante.service';
 import { FacturaEmitida } from 'src/comprobante/schemas/facturaEmitida.schema';
@@ -116,7 +117,7 @@ export class ReportesService {
         let facturaInfo: IFacturaInfo = null;
         const factura = await this.comprobanteService.getFacturaByClaveAcceso(claveAcceso);
         if (factura) {
-            const cliente: Cliente = await this.clienteService.findClienteById(new mongoose.Types.ObjectId(factura.cliente))
+            const cliente: GetClientDto = await this.clienteService.findClienteById(new mongoose.Types.ObjectId(factura.cliente))
             const { detalles, impuestos } = await this.getDetalles(factura);
             const { subtotalIva, subtotalCero, subtotalNoImpuesto, subtotalSinImpuestos, subtotalExcento, valorIva, valorTotal } = this.getValores(impuestos);
             const formasPago: IFormaPagoFactura[] = await this.getFormasPago(factura);

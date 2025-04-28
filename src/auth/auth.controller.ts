@@ -42,7 +42,6 @@ export class AuthController {
 
     @Post('logout')
     async logout(
-        @Req() req,
         @Res() response: Response,
     ) {
         response.clearCookie('access_token', {

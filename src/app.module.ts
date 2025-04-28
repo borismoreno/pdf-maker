@@ -10,6 +10,8 @@ import { SubscriberModule } from './subscriber/subscriber.module';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { EmpresaModule } from './empresa/empresa.module';
+import { GeneralService } from './general/general.service';
+import { GeneralModule } from './general/general.module';
 
 @Module({
     imports: [
@@ -26,7 +28,8 @@ import { EmpresaModule } from './empresa/empresa.module';
         SubscriberModule,
         AuthModule,
         UserModule,
-        EmpresaModule
+        EmpresaModule,
+        GeneralModule
     ],
 })
 export class AppModule { }

@@ -1,17 +1,16 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
+import { TipoIdentificacion } from 'src/general/schemas/tipoIdentificacion.schema';
 import { Usuario } from 'src/user/schemas/user.schema';
 
 @Schema()
 export class Cliente {
-    @Prop({ type: mongoose.Types.ObjectId })
-    _id: mongoose.Types.ObjectId;
     @Prop()
     razonSocial: string;
     @Prop()
     activo: boolean;
-    @Prop()
-    tipoIdentificacion: string;
+    @Prop({ type: mongoose.Types.ObjectId, ref: TipoIdentificacion.name })
+    tipoIdentificacion: mongoose.Types.ObjectId;
     @Prop()
     numeroIdentificacion: string;
     @Prop()
