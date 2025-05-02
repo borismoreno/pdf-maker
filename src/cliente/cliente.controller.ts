@@ -1,6 +1,5 @@
 import { Body, Controller, Delete, Get, Header, Param, Post, Put, Req, Res, UseGuards } from '@nestjs/common';
 import { ClienteService } from './cliente.service';
-import { Cliente } from './schemas/cliente.schema';
 import mongoose from 'mongoose';
 import { AuthGuard } from '@nestjs/passport';
 import { CreateClientDto } from './dto/create-client.dto';

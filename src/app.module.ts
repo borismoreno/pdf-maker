@@ -12,6 +12,9 @@ import { UserModule } from './user/user.module';
 import { EmpresaModule } from './empresa/empresa.module';
 import { GeneralService } from './general/general.service';
 import { GeneralModule } from './general/general.module';
+import { ProductoService } from './producto/producto.service';
+import { ProductoController } from './producto/producto.controller';
+import { ProductoModule } from './producto/producto.module';
 
 @Module({
     imports: [
@@ -29,7 +32,8 @@ import { GeneralModule } from './general/general.module';
         AuthModule,
         UserModule,
         EmpresaModule,
-        GeneralModule
-    ],
+        GeneralModule,
+        ProductoModule
+    ]
 })
 export class AppModule { }

@@ -55,6 +55,7 @@ export class ClienteService {
         cliente.usuario = new mongoose.Types.ObjectId(usuarioId);
         const tipoIdentificacionSave = await this.generalService.getTipoIdentificacionByCodigo(clienteCrearDto.tipoIdentificacion);
         cliente.tipoIdentificacion = tipoIdentificacionSave._id;
+        cliente.activo = true;
         await cliente.save();
         return {
             _id: cliente._id.toString(),
