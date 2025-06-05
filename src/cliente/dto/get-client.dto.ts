@@ -7,4 +7,5 @@ export class GetClientDto {
     telefono: string;
     mail: string;
     direccion: string;
+    totalMes?: number;
 }

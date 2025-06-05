@@ -35,8 +35,29 @@ export class ClienteService {
         return clientesConTipoIdentificacion;
     }
 
+    async getClienteByIdentificacion(identificacion: string): Promise<GetClientDto> {
+        const cliente = await this.clienteModel.findOne({ numeroIdentificacion: identificacion }).exec();
+        if (!cliente) {
+            throw new Error('Cliente no encontrado');
+        }
+        const tipoIdentificacion = await this.generalService.getTipoIdentificacionById(cliente.tipoIdentificacion);
+        return {
+            _id: cliente._id.toString(),
+            activo: cliente.activo,
+            razonSocial: cliente.razonSocial,
+            tipoIdentificacion: tipoIdentificacion.codigo,
+            numeroIdentificacion: cliente.numeroIdentificacion,
+            telefono: cliente.telefono,
+            mail: cliente.mail,
+            direccion: cliente.direccion,
+        };
+    }
+
     async findClienteById(id: mongoose.Types.ObjectId): Promise<GetClientDto> {
         const cliente = await this.clienteModel.findById(id).exec();
+        if (!cliente) {
+            throw new Error('Cliente no encontrado');
+        }
         const tipoIdentificacion = await this.generalService.getTipoIdentificacionById(cliente.tipoIdentificacion);
         return {
             _id: cliente._id.toString(),

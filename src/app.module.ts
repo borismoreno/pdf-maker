@@ -6,15 +6,13 @@ import { ReportesModule } from './reportes/reportes.module';
 import { PrinterModule } from './printer/printer.module';
 import { UploadModule } from './upload/upload.module';
 import { ComprobanteModule } from './comprobante/comprobante.module';
-import { SubscriberModule } from './subscriber/subscriber.module';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { EmpresaModule } from './empresa/empresa.module';
-import { GeneralService } from './general/general.service';
 import { GeneralModule } from './general/general.module';
-import { ProductoService } from './producto/producto.service';
-import { ProductoController } from './producto/producto.controller';
 import { ProductoModule } from './producto/producto.module';
+import { DashboardModule } from './dashboard/dashboard.module';
+import { XmlSignerModule } from './xml-signer/xml-signer.module';
 
 @Module({
     imports: [
@@ -28,12 +26,13 @@ import { ProductoModule } from './producto/producto.module';
         PrinterModule,
         UploadModule,
         ComprobanteModule,
-        SubscriberModule,
         AuthModule,
         UserModule,
         EmpresaModule,
         GeneralModule,
-        ProductoModule
+        ProductoModule,
+        DashboardModule,
+        XmlSignerModule
     ]
 })
 export class AppModule { }

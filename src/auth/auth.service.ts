@@ -35,6 +35,7 @@ export class AuthService {
                 nombre: user.nombre,
                 email: user.email,
                 empresa: empresa.nombreComercial,
+                rucEmpresa: empresa.ruc,
                 pagoRegistrado: user.pagoRegistrado,
             },
         };

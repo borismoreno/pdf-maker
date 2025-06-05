@@ -14,6 +14,7 @@ export class UserResponseDto {
     nombre: string;
     email: string;
     empresa: string;
+    rucEmpresa: string;
     pagoRegistrado: boolean;
 }
 export class RefreshTokenDto {
