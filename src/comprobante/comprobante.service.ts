@@ -34,17 +34,6 @@ export class ComprobanteService {
 
     async getFacturaByClaveAcceso(claveAcceso: string): Promise<FacturaEmitida> {
         const factura = await this.facturaEmitidaModel.findOne({ claveAcceso }).exec();
-        this.facturaEmitidaModel.aggregate([
-            {
-                $group: {
-                    _id: '$ruc',
-                    importeTotal: { $sum: '$importeTotal' },
-                },
-                $match: {
-                    ruc: factura.ruc,
-                }
-            }
-        ])
         return factura;
     }
 

@@ -3,7 +3,6 @@ import * as crypto from 'crypto';
 import * as forge from 'node-forge';
 import * as xmldom from 'xmldom';
 import * as xpath from 'xpath';
-import * as canonicalize from 'canonicalize';
 
 @Injectable()
 export class XmlSignerService {
@@ -63,10 +62,10 @@ export class XmlSignerService {
         privateKey: forge.pki.PrivateKey,
     ): Node {
         // Generar IDs únicos
-        const signatureId = 'Signature' + crypto.randomBytes(4).toString('hex');
-        const signedPropertiesId = signatureId + '-SignedProperties' + crypto.randomBytes(4).toString('hex');
-        const referenceId = 'Reference-ID-' + crypto.randomBytes(4).toString('hex');
-        const certificateId = 'Certificate' + crypto.randomBytes(4).toString('hex');
+        const signatureId = 'Signature' + crypto.randomBytes(3).toString('hex');
+        const signedPropertiesId = signatureId + '-SignedProperties' + crypto.randomBytes(3).toString('hex');
+        const referenceId = 'Reference-ID-' + crypto.randomBytes(3).toString('hex');
+        const certificateId = 'Certificate' + crypto.randomBytes(3).toString('hex');
 
         // 1. Crear elemento Signature
         const signatureElement = doc.createElementNS(this.XMLDSIG_NS, 'ds:Signature');
@@ -79,11 +78,11 @@ export class XmlSignerService {
 
         // 3. Crear SignatureValue (se calculará después)
         const signatureValue = doc.createElementNS(this.XMLDSIG_NS, 'ds:SignatureValue');
-        signatureValue.setAttribute('Id', 'SignatureValue' + crypto.randomBytes(4).toString('hex'));
+        signatureValue.setAttribute('Id', 'SignatureValue' + crypto.randomBytes(3).toString('hex'));
         signatureElement.appendChild(signatureValue);
 
         // 4. Crear KeyInfo
-        const keyInfo = this.createKeyInfo(doc, certificate, certificateId);
+        const keyInfo = this.createKeyInfo(doc, certificate, certificateId, privateKey);
         signatureElement.appendChild(keyInfo);
 
         // 5. Crear Object con las propiedades XAdES
@@ -118,7 +117,7 @@ export class XmlSignerService {
 
         // Reference para SignedProperties
         const signedPropertiesRef = doc.createElementNS(this.XMLDSIG_NS, 'ds:Reference');
-        signedPropertiesRef.setAttribute('Id', 'SignedPropertiesID' + crypto.randomBytes(4).toString('hex'));
+        signedPropertiesRef.setAttribute('Id', 'SignedPropertiesID' + crypto.randomBytes(3).toString('hex'));
         signedPropertiesRef.setAttribute('Type', 'http://uri.etsi.org/01903#SignedProperties');
         signedPropertiesRef.setAttribute('URI', `#${signedPropertiesId}`);
 
@@ -167,7 +166,12 @@ export class XmlSignerService {
         return signedInfo;
     }
 
-    private createKeyInfo(doc: Document, certificate: forge.pki.Certificate, certificateId: string): Node {
+    private createKeyInfo(
+        doc: Document,
+        certificate: forge.pki.Certificate,
+        certificateId: string,
+        privateKey: forge.pki.PrivateKey
+    ): Node {
         const keyInfo = doc.createElementNS(this.XMLDSIG_NS, 'ds:KeyInfo');
         keyInfo.setAttribute('Id', certificateId);
 
@@ -186,11 +190,13 @@ export class XmlSignerService {
         const keyValue = doc.createElementNS(this.XMLDSIG_NS, 'ds:KeyValue');
         const rsaKeyValue = doc.createElementNS(this.XMLDSIG_NS, 'ds:RSAKeyValue');
 
+        // Extraer módulo y exponente de la clave pública
+        const publicKey = privateKey as forge.pki.rsa.PrivateKey;
         const modulus = doc.createElementNS(this.XMLDSIG_NS, 'ds:Modulus');
-        modulus.textContent = forge.util.encode64(forge.pki.publicKeyToRSAPublicKeyPem(certificate.publicKey).split('\n')[1]);
+        modulus.textContent = forge.util.encode64(forge.util.hexToBytes(publicKey.n.toString(16)));
 
         const exponent = doc.createElementNS(this.XMLDSIG_NS, 'ds:Exponent');
-        exponent.textContent = 'AQAB';
+        exponent.textContent = forge.util.encode64(forge.util.hexToBytes(publicKey.e.toString(16)));
 
         rsaKeyValue.appendChild(modulus);
         rsaKeyValue.appendChild(exponent);
@@ -243,11 +249,11 @@ export class XmlSignerService {
         // IssuerSerial
         const issuerSerial = doc.createElementNS(this.XADES_NS, 'etsi:IssuerSerial');
         const issuerName = doc.createElementNS(this.XMLDSIG_NS, 'ds:X509IssuerName');
-        issuerName.textContent = this.getIssuerName(certificate);
+        issuerName.textContent = this.getX509IssuerName(certificate);
         issuerSerial.appendChild(issuerName);
 
         const serialNumber = doc.createElementNS(this.XMLDSIG_NS, 'ds:X509SerialNumber');
-        serialNumber.textContent = certificate.serialNumber;
+        serialNumber.textContent = this.getX509SerialNumber(certificate);
         issuerSerial.appendChild(serialNumber);
 
         cert.appendChild(issuerSerial);
@@ -335,27 +341,38 @@ export class XmlSignerService {
         return certB64.match(/.{1,64}/g)?.join('\n') || certB64;
     }
 
-    private getIssuerName(certificate: forge.pki.Certificate): string {
-        // Convertir el issuer a formato string
+    private getX509IssuerName(certificate: forge.pki.Certificate): string {
+        // Convertir el issuer a formato X.500
         const issuerAttrs = certificate.issuer.attributes;
         const parts = [];
 
-        if (certificate.issuer.getField('CN')) {
-            parts.push(`CN=${certificate.issuer.getField('CN').value}`);
-        }
-        if (certificate.issuer.getField('L')) {
-            parts.push(`L=${certificate.issuer.getField('L').value}`);
-        }
-        if (certificate.issuer.getField('OU')) {
-            parts.push(`OU=${certificate.issuer.getField('OU').value}`);
-        }
-        if (certificate.issuer.getField('O')) {
-            parts.push(`O=${certificate.issuer.getField('O').value}`);
-        }
-        if (certificate.issuer.getField('C')) {
-            parts.push(`C=${certificate.issuer.getField('C').value}`);
+        for (const attr of issuerAttrs) {
+            if (attr.type === '2.5.4.97') { // VAT ID
+                parts.push(`${attr.type}=#${this.toHexString(attr.value)}`);
+            } else {
+                parts.push(`${attr.type}=${attr.value}`);
+            }
         }
 
         return parts.join(',');
+    }
+
+    private getX509SerialNumber(certificate: forge.pki.Certificate): string {
+        // Obtener el serial number como string decimal
+        if (typeof certificate.serialNumber === 'string') {
+            return certificate.serialNumber;
+        }
+
+        // Convertir de hex a decimal si es necesario
+        return BigInt('0x' + certificate.serialNumber).toString();
+    }
+
+    private toHexString(str: string): string {
+        // Convertir string a representación hex
+        let hex = '';
+        for (let i = 0; i < str.length; i++) {
+            hex += str.charCodeAt(i).toString(16).padStart(2, '0');
+        }
+        return hex;
     }
 }
