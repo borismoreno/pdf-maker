@@ -1,6 +1,5 @@
 import { Controller, Post, Body } from '@nestjs/common';
 import { XmlSignerService } from './xml-signer.service';
-import { readFileSync } from 'fs';
 import { ConfigService } from '@nestjs/config';
 
 @Controller('sign')
@@ -11,15 +10,12 @@ export class XmlSignerController {
     ) { }
 
     @Post()
-    async signXml(@Body() body: { xml: string }) {
-        const p12Buffer = readFileSync('src/certificados/boris_marco_moreno_guallichico.p12');
-        const p12Password = this.configService.getOrThrow('CLAVE_FIRMA');
-
+    async signXml(@Body() body: { xml: string, firma: string, password: string }) {
         try {
-            const signedXml = await this.xmlSigner.signXml(
+            const signedXml = await this.xmlSigner.signXmlEnhanced(
                 body.xml,
-                p12Buffer,
-                p12Password,
+                body.password,
+                body.firma
             );
             return { signedXml };
         } catch (error) {
