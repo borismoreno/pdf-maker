@@ -3,6 +3,8 @@ import { AppModule } from './app.module';
 import cookieParser from 'cookie-parser';
 import { HeadersInterceptor } from './common/interceptors/headers.interceptor';
 import { ConfigService } from '@nestjs/config';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 async function bootstrap() {
     const appConfig = new ConfigService();

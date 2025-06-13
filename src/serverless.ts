@@ -5,6 +5,8 @@ import { Callback, Context, Handler } from 'aws-lambda';
 import cookieParser from 'cookie-parser';
 import { ConfigService } from '@nestjs/config';
 import { HeadersInterceptor } from './common/interceptors/headers.interceptor';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 let server: Handler;
 
