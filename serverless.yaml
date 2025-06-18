@@ -32,13 +32,6 @@ custom:
 provider:
   name: aws
   runtime: nodejs20.x
-  environment:
-    DB_URI: ${env:DB_URI}
-    AWS_S3_REGION: ${env:AWS_S3_REGION}
-    AWS_S3_BUCKET_SECRET_ACCESS_KEY: ${env:AWS_S3_BUCKET_SECRET_ACCESS_KEY}
-    AWS_S3_BUCKET_ACCESS_KEY_ID: ${env:AWS_S3_BUCKET_ACCESS_KEY_ID}
-    AWS_S3_BUCKET_NAME: ${env:AWS_S3_BUCKET_NAME}
-
 
 functions:
   main:

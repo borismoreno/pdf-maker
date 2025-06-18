@@ -58,7 +58,7 @@ export class ReportesService {
         });
         const pdfDoc = this.printerService.createPdf(docDefinition);
         const buffs = await this.getBuffer(pdfDoc);
-        const res = await this.uploadService.upload(`${factura.claveAcceso}-pdf`, buffs, 'application/pdf');
+        const res = await this.uploadService.upload(`pdf/${factura.claveAcceso}`, buffs, 'application/pdf');
         return res;
     }
 

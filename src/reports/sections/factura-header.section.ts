@@ -18,8 +18,8 @@ const fetchImage = async (uri: string) => {
 
 export const facturaHeaderSection = async ({ ruc, secuencial, fechaEmision, tipoDocumento, claveAcceso }: FacturaHeaderOptions): Promise<Content> => {
     const s3Url = process.env.S3_URL;
-    const qrCodeDataURL = await qrcode.toDataURL(`${s3Url}${claveAcceso}-pdf`);
-    const dataURL = await fetchImage(`${s3Url}${ruc}.png`);
+    const qrCodeDataURL = await qrcode.toDataURL(`${s3Url}pdf/${claveAcceso}`);
+    const dataURL = await fetchImage(`${s3Url}logos/${ruc}.png`);
     const logo: Content = {
         alignment: 'justify',
         margin: [20, 20],
