@@ -1,58 +1,113 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose from 'mongoose';
+import { Document, Schema } from 'mongoose';
 
-@Schema()
-export class Empresa {
-    @Prop({ type: mongoose.Types.ObjectId })
-    _id: mongoose.Types.ObjectId;
-    @Prop()
-    obligadoContabilidad: string;
-    @Prop()
-    secuencialNotaCredito: string;
-    @Prop()
-    secuencialRetencion: string;
-    @Prop()
-    ssl: boolean;
-    @Prop()
-    activo: boolean;
-    @Prop()
-    ambiente: number;
-    @Prop()
-    tipoEmision: number;
-    @Prop()
-    razonSocial: string;
-    @Prop()
-    nombreComercial: string;
-    @Prop()
-    establecimiento: string;
-    @Prop()
-    puntoEmision: string;
-    @Prop()
-    direccionMatriz: string;
-    @Prop()
-    direccionEstablecimiento: string;
-    @Prop()
-    contribuyenteEspecial: string;
-    @Prop()
-    secuencialFactura: string;
-    @Prop()
-    claveFirma: string;
-    @Prop()
-    mailEnvioComprobantes: string;
-    @Prop()
-    claveMail: string;
-    @Prop()
-    nombreNotificacion: string;
-    @Prop()
-    servidor: string;
-    @Prop()
-    puerto: number;
-    @Prop()
-    ruc: string;
-    @Prop()
-    pathCertificado: string;
-    @Prop()
-    contribuyenteRimpe: boolean;
+export interface Empresa extends Document {
+    id: string;
+    obligadoContabilidad?: boolean;
+    secuencialNotaCredito?: number;
+    secuencialRetencion?: number;
+    regimenMicroempresa?: boolean;
+    ambiente?: number;
+    tipoEmision?: number;
+    razonSocial?: string;
+    nombreComercial?: string;
+    ruc?: string;
+    establecimiento?: string;
+    puntoEmision?: string;
+    direccionMatriz?: string;
+    direccionEstablecimiento?: string;
+    contribuyenteEspecial?: string;
+    secuencialFactura?: number;
+    claveFirma?: string;
+    pathCertificado?: string;
+    pathLogo?: string;
+    nombreNotificacion?: string;
+    contribuyenteRimpe?: boolean;
+    activo?: boolean;
 }
 
-export const EmpresaSchema = SchemaFactory.createForClass(Empresa);
+export const EmpresaSchema = new Schema<Empresa>({
+    obligadoContabilidad: {
+        type: Boolean,
+        default: false
+    },
+    secuencialNotaCredito: {
+        type: Number,
+        default: 1
+    },
+    secuencialRetencion: {
+        type: Number,
+        default: 1
+    },
+    regimenMicroempresa: {
+        type: Boolean,
+        default: false
+    },
+    ambiente: {
+        type: Number,
+        default: 1
+    },
+    tipoEmision: {
+        type: Number,
+        default: 1
+    },
+    razonSocial: {
+        type: String,
+        required: false
+    },
+    nombreComercial: {
+        type: String,
+        required: false
+    },
+    ruc: {
+        type: String,
+        required: false
+    },
+    establecimiento: {
+        type: String,
+        default: '001'
+    },
+    puntoEmision: {
+        type: String,
+        default: '001'
+    },
+    direccionMatriz: {
+        type: String,
+        required: false
+    },
+    direccionEstablecimiento: {
+        type: String,
+        required: false
+    },
+    contribuyenteEspecial: {
+        type: String,
+        required: false
+    },
+    secuencialFactura: {
+        type: Number,
+        default: 1
+    },
+    claveFirma: {
+        type: String,
+        required: false
+    },
+    pathCertificado: {
+        type: String,
+        required: false
+    },
+    pathLogo: {
+        type: String,
+        required: false
+    },
+    nombreNotificacion: {
+        type: String,
+        required: false
+    },
+    contribuyenteRimpe: {
+        type: Boolean,
+        default: false
+    },
+    activo: {
+        type: Boolean,
+        default: true
+    }
+});

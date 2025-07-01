@@ -4,6 +4,7 @@ import { TipoIdentificacionSchema } from './schemas/tipoIdentificacion.schema';
 import { GeneralService } from './general.service';
 import { TipoProductoSchema } from './schemas/tipoProducto.schema';
 import { TarifaIvaSchema } from './schemas/tarifaIva.schema';
+import { GeneralController } from './general.controller';
 
 @Module({
     imports: [
@@ -14,6 +15,7 @@ import { TarifaIvaSchema } from './schemas/tarifaIva.schema';
         ])
     ],
     providers: [GeneralService],
-    exports: [GeneralService]
+    exports: [GeneralService],
+    controllers: [GeneralController]
 })
 export class GeneralModule { }

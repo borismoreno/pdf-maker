@@ -9,8 +9,8 @@ export class Cliente {
     razonSocial: string;
     @Prop()
     activo: boolean;
-    @Prop({ type: mongoose.Types.ObjectId, ref: TipoIdentificacion.name })
-    tipoIdentificacion: mongoose.Types.ObjectId;
+    @Prop()
+    tipoIdentificacion: string;
     @Prop()
     numeroIdentificacion: string;
     @Prop()
@@ -19,7 +19,7 @@ export class Cliente {
     mail: string;
     @Prop()
     direccion: string;
-    @Prop({ type: mongoose.Types.ObjectId, ref: Usuario.name })
+    @Prop({ type: mongoose.Types.ObjectId, ref: 'Usuario' })
     usuario: mongoose.Types.ObjectId;
 }
 

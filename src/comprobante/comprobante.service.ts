@@ -64,7 +64,7 @@ export class ComprobanteService {
             throw new Error('Usuario no encontrado');
         }
         const { empresa: empresaId } = user;
-        const empresa = await this.empresaService.findById(new mongoose.Types.ObjectId(empresaId));
+        const empresa = await this.empresaService.findById(empresaId);
 
         if (!empresa) {
             throw new Error('Empresa no encontrada');

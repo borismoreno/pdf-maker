@@ -20,7 +20,7 @@ export class Producto {
     descripcion: string;
     @Prop()
     valorUnitario: number;
-    @Prop({ type: mongoose.Types.ObjectId, ref: Usuario.name })
+    @Prop({ type: mongoose.Types.ObjectId, ref: 'Usuario' })
     usuario: mongoose.Types.ObjectId;
 }
 

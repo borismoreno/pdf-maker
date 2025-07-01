@@ -25,18 +25,18 @@ export class AuthService {
 
     async login(user: Usuario): Promise<LoginResponseDto> {
         const payload = { username: user.nombre, sub: user._id };
-        const empresa = await this.empresaService.findById(new mongoose.Types.ObjectId(user.empresa));
+        const empresa = await this.empresaService.findById(user.empresa);
         return {
             token: this.jwtService.sign(payload),
             user: {
                 _id: '' + user._id,
                 rol: user.rol,
-                estado: user.estado,
+                estado: user.activo,
                 nombre: user.nombre,
                 email: user.email,
-                empresa: empresa.nombreComercial,
+                empresa: empresa?.nombreComercial ?? '',
                 rucEmpresa: empresa.ruc,
-                pagoRegistrado: user.pagoRegistrado,
+                pagoRegistrado: true,
             },
         };
     }

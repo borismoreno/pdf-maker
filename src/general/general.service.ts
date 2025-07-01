@@ -4,11 +4,12 @@ import { InjectModel } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import { TipoProducto } from './schemas/tipoProducto.schema';
 import { TarifaIva } from './schemas/tarifaIva.schema';
+import { IGetTipoIdentificacionResponse } from './dto/get-tipo-identificacion.dto';
 
 @Injectable()
 export class GeneralService {
     constructor(
-        @InjectModel(TipoIdentificacion.name)
+        @InjectModel('TipoIdentificacion')
         private tipoIdentificacionModel: mongoose.Model<TipoIdentificacion>,
         @InjectModel(TipoProducto.name)
         private tipoProductoModel: mongoose.Model<TipoProducto>,
@@ -16,7 +17,15 @@ export class GeneralService {
         private tarifaIvaModel: mongoose.Model<TarifaIva>,
     ) { }
 
-    async getTipoIdentificacionById(id: mongoose.Types.ObjectId): Promise<TipoIdentificacion> {
+    async getAllTipoIdentificacion(): Promise<IGetTipoIdentificacionResponse[]> {
+        const tipoIdentificaciones = await this.tipoIdentificacionModel.find({ activo: true }).exec();
+        return tipoIdentificaciones.map(tipo => ({
+            codigo: tipo.codigo,
+            tipoIdentificacion: tipo.tipoIdentificacion,
+        }));
+    }
+
+    async getTipoIdentificacionById(id: string): Promise<TipoIdentificacion> {
         const tipoIdentificacion = await this.tipoIdentificacionModel.findById(id).exec();
         return tipoIdentificacion;
     }

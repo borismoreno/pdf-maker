@@ -75,7 +75,7 @@ export class ClienteService {
         const cliente = new this.clienteModel(clienteCrearDto);
         cliente.usuario = new mongoose.Types.ObjectId(usuarioId);
         const tipoIdentificacionSave = await this.generalService.getTipoIdentificacionByCodigo(clienteCrearDto.tipoIdentificacion);
-        cliente.tipoIdentificacion = tipoIdentificacionSave._id;
+        cliente.tipoIdentificacion = tipoIdentificacionSave._id as string;
         cliente.activo = true;
         await cliente.save();
         return {
@@ -99,7 +99,10 @@ export class ClienteService {
         if (clienteExistente.usuario.toString() !== usuarioId) {
             throw new Error('No tienes permiso para actualizar este cliente');
         }
-        clienteExistente.tipoIdentificacion = tipoIdentificacion._id;
+        if (!tipoIdentificacion) {
+            throw new Error('Tipo de identificación inválido');
+        }
+        clienteExistente.tipoIdentificacion = tipoIdentificacion._id as string;
         clienteExistente.razonSocial = cliente.razonSocial;
         clienteExistente.numeroIdentificacion = cliente.numeroIdentificacion;
         clienteExistente.telefono = cliente.telefono;

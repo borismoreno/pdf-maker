@@ -13,6 +13,8 @@ import { GeneralModule } from './general/general.module';
 import { ProductoModule } from './producto/producto.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { XmlSignerModule } from './xml-signer/xml-signer.module';
+import { BookModule } from './book/book.module';
+import { AuthorModule } from './author/author.module';
 
 @Module({
     imports: [
@@ -32,7 +34,9 @@ import { XmlSignerModule } from './xml-signer/xml-signer.module';
         GeneralModule,
         ProductoModule,
         DashboardModule,
-        XmlSignerModule
-    ]
+        XmlSignerModule,
+        BookModule,
+        AuthorModule
+    ],
 })
 export class AppModule { }
