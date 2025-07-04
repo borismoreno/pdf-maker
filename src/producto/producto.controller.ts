@@ -5,6 +5,7 @@ import { GetProductoDto } from './dto/get-producto.dto';
 import mongoose from 'mongoose';
 import { CreateProductoDto } from './dto/create-producto.dto';
 import { Response } from 'express';
+import { IGenericResponse } from 'src/types/general';
 
 @Controller('producto')
 export class ProductoController {
@@ -16,7 +17,7 @@ export class ProductoController {
     @UseGuards(AuthGuard('jwt'))
     async getAllProductos(@Req() req): Promise<GetProductoDto[]> {
         const claims = req.user;
-        return this.productoService.findAll(new mongoose.Types.ObjectId(claims.user._id));
+        return this.productoService.findAll(claims.user._id);
     }
 
     @Post()
@@ -24,7 +25,7 @@ export class ProductoController {
     async saveProducto(
         @Req() req,
         @Body() createProductoDto: CreateProductoDto
-    ): Promise<GetProductoDto> {
+    ): Promise<IGenericResponse> {
         return this.productoService.save(createProductoDto, req.user.user._id);
     }
 
@@ -34,8 +35,8 @@ export class ProductoController {
         @Param('id') id,
         @Req() req,
         @Body() updateProductoDto: CreateProductoDto
-    ): Promise<GetProductoDto> {
-        return this.productoService.update(updateProductoDto, new mongoose.Types.ObjectId(id), req.user.user._id);
+    ): Promise<IGenericResponse> {
+        return this.productoService.update(updateProductoDto, id as string, req.user.user._id);
     }
 
     @Delete(':id')
@@ -43,8 +44,7 @@ export class ProductoController {
     async deleteProducto(
         @Param('id') id,
         @Req() req,
-        @Res() response: Response,
-    ) {
-        return response.status(204).send(this.productoService.delete(new mongoose.Types.ObjectId(id), req.user.user._id));
+    ): Promise<IGenericResponse> {
+        return this.productoService.delete(id, req.user.user._id);
     }
 }

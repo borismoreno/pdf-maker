@@ -60,7 +60,7 @@ export class FacturaEmitida {
     estadoComprobante: string;
     @Prop()
     usuario: string;
-    @Prop({ type: mongoose.Types.ObjectId, ref: Cliente.name })
+    @Prop({ type: mongoose.Types.ObjectId, ref: 'Cliente' })
     cliente: string;
 }
 

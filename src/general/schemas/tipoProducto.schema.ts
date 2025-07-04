@@ -1,16 +1,24 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose from 'mongoose';
+import { Document, Schema } from "mongoose";
 
-@Schema()
-export class TipoProducto {
-    @Prop({ type: mongoose.Types.ObjectId })
-    _id: mongoose.Types.ObjectId;
-    @Prop()
+export interface TipoProducto extends Document {
+    id: string;
     codigo: string;
-    @Prop()
     descripcion: string;
-    @Prop()
     activo: boolean;
 }
 
-export const TipoProductoSchema = SchemaFactory.createForClass(TipoProducto);
+export const TipoProductoSchema = new Schema<TipoProducto>({
+    codigo: {
+        type: String,
+        required: [true, 'El código es obligatorio'],
+        unique: true,
+    },
+    descripcion: {
+        type: String,
+        required: [true, 'La descripción es obligatoria'],
+    },
+    activo: {
+        type: Boolean,
+        default: true,
+    }
+});

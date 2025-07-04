@@ -1,26 +1,50 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose from 'mongoose';
-import { TipoIdentificacion } from 'src/general/schemas/tipoIdentificacion.schema';
-import { Usuario } from 'src/user/schemas/user.schema';
+import { Document, Schema } from "mongoose";
 
-@Schema()
-export class Cliente {
-    @Prop()
+export interface Cliente extends Document {
+    id: string;
     razonSocial: string;
-    @Prop()
     activo: boolean;
-    @Prop()
-    tipoIdentificacion: string;
-    @Prop()
+    tipoIdentificacion: Schema.Types.ObjectId;
     numeroIdentificacion: string;
-    @Prop()
     telefono: string;
-    @Prop()
     mail: string;
-    @Prop()
     direccion: string;
-    @Prop({ type: mongoose.Types.ObjectId, ref: 'Usuario' })
-    usuario: mongoose.Types.ObjectId;
+    usuario: Schema.Types.ObjectId;
 }
 
-export const ClienteSchema = SchemaFactory.createForClass(Cliente);
+export const ClienteSchema = new Schema<Cliente>({
+    razonSocial: {
+        type: String,
+        required: [true, 'La Razón Social es obligatoria.']
+    },
+    activo: {
+        type: Boolean,
+        default: true
+    },
+    tipoIdentificacion: {
+        type: Schema.Types.ObjectId,
+        ref: 'TipoIdentificacion',
+        required: [true, 'El tipo de identificación es obligatorio']
+    },
+    numeroIdentificacion: {
+        type: String,
+        required: [true, 'El número de identificación es obligatorio.']
+    },
+    telefono: {
+        type: String,
+        required: [true, 'El teléfono es obligatorio.']
+    },
+    mail: {
+        type: String,
+        required: [true, 'El correo electrónico es obligatorio.']
+    },
+    direccion: {
+        type: String,
+        required: [true, 'La dirección es obligatoria.']
+    },
+    usuario: {
+        type: Schema.Types.ObjectId,
+        ref: 'Usuario',
+        required: [true, 'El usuario es obligatorio']
+    }
+})

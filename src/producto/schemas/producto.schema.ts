@@ -1,27 +1,51 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose from 'mongoose';
-import { TarifaIva } from 'src/general/schemas/tarifaIva.schema';
-import { TipoProducto } from 'src/general/schemas/tipoProducto.schema';
-import { Usuario } from 'src/user/schemas/user.schema';
+import { Document, Schema } from "mongoose";
 
-@Schema()
-export class Producto {
-    @Prop()
+export interface Producto extends Document {
+    id: string;
     codigoPrincipal: string;
-    @Prop()
     codigoAuxiliar: string;
-    @Prop()
     activo: boolean;
-    @Prop({ type: mongoose.Types.ObjectId, ref: TipoProducto.name })
-    tipoProducto: mongoose.Types.ObjectId;
-    @Prop({ type: mongoose.Types.ObjectId, ref: TarifaIva.name })
-    tarifaIva: mongoose.Types.ObjectId;
-    @Prop()
+    tipoProducto: Schema.Types.ObjectId;
+    tarifaIva: Schema.Types.ObjectId;
     descripcion: string;
-    @Prop()
     valorUnitario: number;
-    @Prop({ type: mongoose.Types.ObjectId, ref: 'Usuario' })
-    usuario: mongoose.Types.ObjectId;
+    usuario: Schema.Types.ObjectId;
 }
 
-export const ProductoSchema = SchemaFactory.createForClass(Producto);
+export const ProductoSchema = new Schema<Producto>({
+    codigoPrincipal: {
+        type: String,
+        required: [true, 'El código principal es obligatorio']
+    },
+    codigoAuxiliar: {
+        type: String,
+        required: false
+    },
+    activo: {
+        type: Boolean,
+        default: true
+    },
+    tipoProducto: {
+        type: Schema.Types.ObjectId,
+        ref: 'TipoProducto',
+        required: [true, 'El tipo de producto es obligatorio']
+    },
+    tarifaIva: {
+        type: Schema.Types.ObjectId,
+        ref: 'TarifaIva',
+        required: [true, 'La tarifa IVA es obligatoria']
+    },
+    descripcion: {
+        type: String,
+        required: [true, 'La descripción es obligatoria']
+    },
+    valorUnitario: {
+        type: Number,
+        required: [true, 'El valor unitario es obligatorio']
+    },
+    usuario: {
+        type: Schema.Types.ObjectId,
+        ref: 'Usuario',
+        required: [true, 'El usuario es obligatorio']
+    }
+})

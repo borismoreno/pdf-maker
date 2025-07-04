@@ -5,6 +5,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { CreateClientDto } from './dto/create-client.dto';
 import { GetClientDto } from './dto/get-client.dto';
 import { Response } from 'express';
+import { IGenericResponse } from 'src/types/general';
 
 @Controller('cliente')
 export class ClienteController {
@@ -24,7 +25,10 @@ export class ClienteController {
 
     @Post()
     @UseGuards(AuthGuard('jwt'))
-    async saveCliente(@Req() req, @Body() createClienteDto: CreateClientDto): Promise<GetClientDto> {
+    async saveCliente(
+        @Req() req,
+        @Body() createClienteDto: CreateClientDto
+    ): Promise<IGenericResponse> {
         return this.clienteService.save(createClienteDto, req.user.user._id);
     }
 
@@ -34,7 +38,7 @@ export class ClienteController {
         @Param('id') id,
         @Req() req,
         @Body() updateClienteDto: CreateClientDto
-    ): Promise<GetClientDto> {
+    ): Promise<IGenericResponse> {
         return this.clienteService.update(updateClienteDto, new mongoose.Types.ObjectId(id), req.user.user._id);
     }
 
@@ -43,8 +47,7 @@ export class ClienteController {
     async deleteCliente(
         @Param('id') id,
         @Req() req,
-        @Res() response: Response,
-    ) {
-        return response.status(204).send(this.clienteService.delete(new mongoose.Types.ObjectId(id), req.user.user._id));
+    ): Promise<IGenericResponse> {
+        return this.clienteService.delete(new mongoose.Types.ObjectId(id), req.user.user._id);
     }
 }

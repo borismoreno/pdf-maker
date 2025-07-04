@@ -1,6 +1,6 @@
 export class GetProductoDto {
-    _id?: string;
-    activo: boolean;
+    id?: string;
+    // activo: boolean;
     codigoPrincipal: string;
     codigoAuxiliar: string;
     tipoProducto: string;

@@ -32,6 +32,19 @@ custom:
 provider:
   name: aws
   runtime: nodejs20.x
+  environment:
+    DB_URI: ${env:DB_URI}
+    AWS_S3_REGION: ${env:AWS_S3_REGION}
+    AWS_S3_BUCKET_SECRET_ACCESS_KEY: ${env:AWS_S3_BUCKET_SECRET_ACCESS_KEY}
+    AWS_S3_BUCKET_ACCESS_KEY_ID: ${env:AWS_S3_BUCKET_ACCESS_KEY_ID}
+    AWS_S3_BUCKET_NAME: ${env:AWS_S3_BUCKET_NAME}
+    JWT_SECRET: ${env:JWT_SECRET}
+    FRONTEND_URL: ${env:FRONTEND_URL}
+    COOKIE_DOMAIN: ${env:COOKIE_DOMAIN}
+    COOKIE_SECURE: ${env:COOKIE_SECURE}
+    COOKIE_HTTP_ONLY: ${env:COOKIE_HTTP_ONLY}
+    COOKIE_SAME_SITE: ${env:COOKIE_SAME_SITE}
+    S3_URL: ${env:S3_URL}
 
 functions:
   main:

@@ -4,16 +4,16 @@ import { InjectModel } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import { TipoProducto } from './schemas/tipoProducto.schema';
 import { TarifaIva } from './schemas/tarifaIva.schema';
-import { IGetTipoIdentificacionResponse } from './dto/get-tipo-identificacion.dto';
+import { IGetTarifaIvaResponse, IGetTipoIdentificacionResponse, IGetTipoProductoResponse } from './dto/get-tipo-identificacion.dto';
 
 @Injectable()
 export class GeneralService {
     constructor(
         @InjectModel('TipoIdentificacion')
         private tipoIdentificacionModel: mongoose.Model<TipoIdentificacion>,
-        @InjectModel(TipoProducto.name)
+        @InjectModel('TipoProducto')
         private tipoProductoModel: mongoose.Model<TipoProducto>,
-        @InjectModel(TarifaIva.name)
+        @InjectModel('TarifaIva')
         private tarifaIvaModel: mongoose.Model<TarifaIva>,
     ) { }
 
@@ -22,6 +22,22 @@ export class GeneralService {
         return tipoIdentificaciones.map(tipo => ({
             codigo: tipo.codigo,
             tipoIdentificacion: tipo.tipoIdentificacion,
+        }));
+    }
+
+    async getAllTipoProducto(): Promise<IGetTipoProductoResponse[]> {
+        const tipoProductos = await this.tipoProductoModel.find({ activo: true }).exec();
+        return tipoProductos.map(tipo => ({
+            codigo: tipo.codigo,
+            descripcion: tipo.descripcion,
+        }));
+    }
+
+    async getAllTarifaIva(): Promise<IGetTarifaIvaResponse[]> {
+        const tarifasIva = await this.tarifaIvaModel.find({ activo: true }).exec();
+        return tarifasIva.map(tipo => ({
+            codigo: tipo.codigo,
+            porcentaje: tipo.porcentaje,
         }));
     }
 
@@ -35,7 +51,7 @@ export class GeneralService {
         return tipoIdentificacion;
     }
 
-    async getTipoProductoById(id: mongoose.Types.ObjectId): Promise<TipoProducto> {
+    async getTipoProductoById(id: string): Promise<TipoProducto> {
         const tipoProducto = await this.tipoProductoModel.findById(id).exec();
         return tipoProducto;
     }
@@ -45,7 +61,7 @@ export class GeneralService {
         return tipoProducto;
     }
 
-    async getTarifaIvaById(id: mongoose.Types.ObjectId): Promise<TarifaIva> {
+    async getTarifaIvaById(id: string): Promise<TarifaIva> {
         const tarifaIva = await this.tarifaIvaModel.findById(id).exec();
         return tarifaIva;
     }

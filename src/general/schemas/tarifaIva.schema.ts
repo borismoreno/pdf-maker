@@ -1,16 +1,24 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose from 'mongoose';
+import { Schema } from "mongoose";
 
-@Schema()
-export class TarifaIva {
-    @Prop({ type: mongoose.Types.ObjectId })
-    _id: mongoose.Types.ObjectId;
-    @Prop()
+export interface TarifaIva {
+    id: string;
     codigo: string;
-    @Prop()
     porcentaje: string;
-    @Prop()
     activo: boolean;
 }
 
-export const TarifaIvaSchema = SchemaFactory.createForClass(TarifaIva);
+export const TarifaIvaSchema = new Schema<TarifaIva>({
+    codigo: {
+        type: String,
+        required: [true, 'El código es obligatorio'],
+        unique: true,
+    },
+    porcentaje: {
+        type: String,
+        required: [true, 'El porcentaje es obligatorio'],
+    },
+    activo: {
+        type: Boolean,
+        default: true,
+    }
+})
