@@ -168,6 +168,19 @@ export class EmpresaService {
         }
     }
 
+    async findEmpresaByRuc(ruc: string): Promise<Empresa> {
+        let empresa: Empresa | PromiseLike<Empresa>;
+        try {
+            empresa = await this.empresaModel.findOne({ ruc: ruc });
+        } catch (error) {
+            return null;
+        }
+        if (!empresa) {
+            return null
+        }
+        return empresa;
+    }
+
     private async findEmpresa(id: string): Promise<Empresa> {
         let empresa: Empresa | PromiseLike<Empresa>;
         try {

@@ -19,7 +19,7 @@ export class ClienteService {
         const clientes = await this.clienteModel.find({ usuario: usuarioId }).exec();
         const clientesConTipoIdentificacion = await Promise.all(
             clientes.map(async (cliente) => {
-                const tipoIdentificacion = await this.generalService.getTipoIdentificacionById(cliente.tipoIdentificacion.toString());
+                const tipoIdentificacion = await this.generalService.getTipoIdentificacionById(cliente.tipoIdentificacion?.toString());
                 const clienteDto: GetClientDto = {
                     _id: cliente._id.toString(),
                     activo: cliente.activo,

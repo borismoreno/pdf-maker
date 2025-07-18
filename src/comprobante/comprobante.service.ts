@@ -11,8 +11,9 @@ import { EmpresaService } from 'src/empresa/empresa.service';
 import { UserService } from 'src/user/user.service';
 import { ClienteService } from 'src/cliente/cliente.service';
 import { GenerarClaveAcceso } from '../helpers/comprobante.helper';
-import { getCurrentLocalDate } from 'src/helpers/date';
+import { getCurrentLocalDate, getDateBounds, SearchType } from 'src/helpers/date';
 import { GetClientDto } from 'src/cliente/dto/get-client.dto';
+import { GetFacturaEmitidaDto } from './dto/get-factura-emitida.dto';
 
 @Injectable()
 export class ComprobanteService {
@@ -114,8 +115,9 @@ export class ComprobanteService {
         // const detalles = createFacturaDto.detalles.map((detalle) => {   
     }
 
-    getCommonPipeline(ruc: string, pastYear?: boolean, startDateParam?: Date, endDateParam?: Date): mongoose.PipelineStage[] {
-        const { startDate, endDate } = getCurrentLocalDate(pastYear);
+    async getCommonPipeline(ruc: string, startDateParam: Date, endDateParam: Date): Promise<mongoose.PipelineStage[]> {
+        const empresa = await this.empresaService.findEmpresaByRuc(ruc);
+        if (!empresa) return null;
         let pipeline: mongoose.PipelineStage[] = [
             {
                 $addFields: {
@@ -144,9 +146,10 @@ export class ComprobanteService {
                 $match: {
                     ruc: ruc,
                     date: {
-                        $gte: startDateParam ? startDateParam : startDate,
-                        $lt: endDateParam ? endDateParam : endDate
-                    }
+                        $gte: startDateParam,
+                        $lt: endDateParam
+                    },
+                    ambiente: empresa.ambiente?.toString()
                 }
             }
         ];
@@ -154,41 +157,43 @@ export class ComprobanteService {
     }
 
     async getTotalFacturasEmitidas(ruc: string, pastYear?: boolean, startDateParam?: Date, endDateParam?: Date): Promise<number> {
-        let pipeline: mongoose.PipelineStage[] = this.getCommonPipeline(ruc, pastYear, startDateParam, endDateParam);
-        pipeline.push(
-            {
-                $group: {
-                    _id: null,
-                    numeroFacturas: {
-                        $sum: 1
-                    }
-                }
-            }
-        );
-        const result = await this.facturaEmitidaModel.aggregate(pipeline).exec();
+        // let pipeline: mongoose.PipelineStage[] = this.getCommonPipeline(ruc, pastYear, startDateParam, endDateParam);
+        // pipeline.push(
+        //     {
+        //         $group: {
+        //             _id: null,
+        //             numeroFacturas: {
+        //                 $sum: 1
+        //             }
+        //         }
+        //     }
+        // );
+        // const result = await this.facturaEmitidaModel.aggregate(pipeline).exec();
 
-        return result.length > 0 ? result[0].numeroFacturas : 0;
+        // return result.length > 0 ? result[0].numeroFacturas : 0;
+        return 0;
     }
 
     async getImporteTotalEmitidasCurrentMonth(ruc: string, pastYear?: boolean, startDateParam?: Date, endDateParam?: Date): Promise<number> {
-        let pipeline: mongoose.PipelineStage[] = this.getCommonPipeline(ruc, pastYear, startDateParam, endDateParam);
+        // let pipeline: mongoose.PipelineStage[] = this.getCommonPipeline(ruc, pastYear, startDateParam, endDateParam);
 
-        pipeline.push(
-            {
-                $group: {
-                    _id: null,
-                    importeTotal: {
-                        $sum: {
-                            $toDouble: '$importeTotal'
-                        }
-                    },
-                }
-            }
-        )
+        // pipeline.push(
+        //     {
+        //         $group: {
+        //             _id: null,
+        //             importeTotal: {
+        //                 $sum: {
+        //                     $toDouble: '$importeTotal'
+        //                 }
+        //             },
+        //         }
+        //     }
+        // )
 
-        const result = await this.facturaEmitidaModel.aggregate(pipeline).exec();
+        // const result = await this.facturaEmitidaModel.aggregate(pipeline).exec();
 
-        return result.length > 0 ? result[0].importeTotal : 0;
+        // return result.length > 0 ? result[0].importeTotal : 0;
+        return 0;
     }
 
     async getNumeroNuevosClientesCurrentMonth(ruc: string, pastYear?: boolean, startDateParam?: Date, endDateParam?: Date): Promise<number> {
@@ -253,40 +258,94 @@ export class ComprobanteService {
         return result.length > 0 ? result[0].uniqueClients : 0;
     }
 
-    async getTopFiveClients(ruc: string, startDateParam?: Date, endDateParam?: Date): Promise<GetClientDto[]> {
-        let pipeline: mongoose.PipelineStage[] = this.getCommonPipeline(ruc, false, startDateParam, endDateParam);
+    async getFacturasEmitidas(ruc: string, searchType: SearchType, startDate?: Date, endDate?: Date): Promise<GetFacturaEmitidaDto[]> {
+        const { firstDay, lastDay } = getDateBounds(searchType);
+        let pipeline: mongoose.PipelineStage[] = await this.getCommonPipeline(ruc, startDate ? startDate : firstDay, endDate ? endDate : lastDay);
         pipeline.push(
             {
-                $group: {
-                    _id: "$identificacionComprador",
-                    totalSum: {
-                        $sum: {
-                            $convert: {
-                                input: "$importeTotal",
-                                to: "double"
-                            }
-                        }
-                    }
-                }
-            },
-            {
                 $sort: {
-                    totalSum: -1
+                    date: 1
                 }
-            },
-            {
-                $limit: 5
             }
-        );
-        const result = await this.facturaEmitidaModel.aggregate(pipeline).exec();
-        let clientes: GetClientDto[] = [];
-        if (result.length > 0) {
-            for (const element of result) {
-                const cliente = await this.clienteService.getClienteByIdentificacion(element._id);
-                cliente.totalMes = element.totalSum ?? 0;
-                clientes.push(cliente);
+        )
+        const result: FacturaEmitida[] = await this.facturaEmitidaModel.aggregate(pipeline).exec();
+        const facturas = result.map((factura) => {
+            const fact: GetFacturaEmitidaDto = {
+                id: factura._id.toString(),
+                claveAcceso: factura.claveAcceso,
+                numeroFactura: `${factura.ptoEmi}-${factura.estab}-${factura.secuencial}`,
+                fechaEmision: factura.fechaEmision,
+                razonSocialCliente: factura.razonSocialComprador,
+                identificacionCliente: factura.identificacionComprador,
+                importeTotal: Number(factura.importeTotal),
+                estadoComprobante: this.getEstadoComprobante(factura.estadoComprobante)
             }
+            return fact;
+        });
+        return facturas;
+    }
+
+    private getEstadoComprobante(estadoDb: string): string {
+        switch (estadoDb) {
+            case 'EMA':
+                return 'Procesada'
+            case 'AUT':
+                return 'Autorizada'
+            case 'ANU':
+                return 'Anulada'
+            case 'NAT':
+                return 'No Autorizada'
+            case 'DEV':
+                return 'Devuelta'
+            case 'PPR':
+                return 'Por Procesar'
+            default:
+                '';
         }
-        return clientes;
+    }
+
+    async getTopFiveClients(ruc: string, startDateParam?: Date, endDateParam?: Date): Promise<GetClientDto[]> {
+        // let pipeline: mongoose.PipelineStage[] = this.getCommonPipeline(ruc, false, startDateParam, endDateParam);
+        // pipeline.push(
+        //     {
+        //         $group: {
+        //             _id: "$identificacionComprador",
+        //             totalSum: {
+        //                 $sum: {
+        //                     $convert: {
+        //                         input: "$importeTotal",
+        //                         to: "double"
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //     },
+        //     {
+        //         $sort: {
+        //             totalSum: -1
+        //         }
+        //     },
+        //     {
+        //         $limit: 5
+        //     }
+        // );
+        // const result = await this.facturaEmitidaModel.aggregate(pipeline).exec();
+        // let clientes: GetClientDto[] = [];
+        // if (result.length > 0) {
+        //     for (const element of result) {
+        //         const cliente = await this.clienteService.getClienteByIdentificacion(element._id);
+        //         cliente.totalMes = element.totalSum ?? 0;
+        //         clientes.push(cliente);
+        //     }
+        // }
+        // return clientes;
+        return [];
+    }
+
+    getCurrentDateLocal(): Date {
+        // const { startDate, endDate } = getCurrentLocalDate(false);
+        const { firstDay, lastDay } = getDateBounds('currentMonth');
+        console.log(firstDay, lastDay);
+        return firstDay;
     }
 }
