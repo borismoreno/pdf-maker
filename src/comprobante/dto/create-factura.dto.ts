@@ -50,3 +50,7 @@ export class ComprobanteResponse {
     mensaje: string;
     error: string;
 }
+
+export class SimularEmision {
+    connectionId: string;
+}

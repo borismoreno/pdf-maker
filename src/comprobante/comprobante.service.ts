@@ -14,6 +14,8 @@ import { GenerarClaveAcceso } from '../helpers/comprobante.helper';
 import { getCurrentLocalDate, getDateBounds, SearchType } from 'src/helpers/date';
 import { GetClientDto } from 'src/cliente/dto/get-client.dto';
 import { GetFacturaEmitidaDto } from './dto/get-factura-emitida.dto';
+import { IGenericResponse } from 'src/types/general';
+import { sendMessage } from 'src/helpers/websocket.helper';
 
 @Injectable()
 export class ComprobanteService {
@@ -348,4 +350,34 @@ export class ComprobanteService {
         console.log(firstDay, lastDay);
         return firstDay;
     }
+
+    async simularEmision(connectionId: string): Promise<IGenericResponse> {
+        console.log('Simulando emisión para:', connectionId);
+
+        await sendMessage(connectionId, '✅ Firmando electrónicamente...', 'estadoFactura');
+        await new Promise(res => setTimeout(res, 2000));
+        await sendMessage(connectionId, '✅ Enviando al SRI...', 'estadoFactura');
+        await new Promise(res => setTimeout(res, 2000));
+        await sendMessage(connectionId, '✅ Validación exitosa.', 'estadoFactura');
+        return {
+            success: true
+        }
+    }
+
+    // const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
+
+
+    //     export const simularEmision = async (event: APIGatewayEvent) => {
+    //     const { connectionId } = JSON.parse(event.body ?? '{}');
+
+    //     console.log('Simulando emisión para:', connectionId);
+
+    //     await sendMessage(connectionId, '✅ Firmando electrónicamente...', 'estadoFactura');
+    //     await delay(2000);
+    //     await sendMessage(connectionId, '✅ Enviando al SRI...', 'estadoFactura');
+    //     await delay(2000);
+    //     await sendMessage(connectionId, '✅ Validación exitosa.', 'estadoFactura');
+
+    //     return { statusCode: 200, body: 'Emisión simulada' };
+    // };
 }

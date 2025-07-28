@@ -2,7 +2,7 @@ import { Body, Controller, Get, Post, Query, Req, UseGuards } from '@nestjs/comm
 import { ComprobanteService } from './comprobante.service';
 import { FacturaEmitida } from './schemas/facturaEmitida.schema';
 import { AuthGuard } from '@nestjs/passport';
-import { ComprobanteDto, CreateFacturaDto } from './dto/create-factura.dto';
+import { ComprobanteDto, CreateFacturaDto, SimularEmision } from './dto/create-factura.dto';
 import { SearchType } from 'src/helpers/date';
 
 @Controller('comprobante')
@@ -39,6 +39,16 @@ export class ComprobanteController {
     ): Promise<any> {
         const claims = req.user;
         return this.comprobanteService.getFacturasEmitidas(claims.user.rucEmpresa, searchType, startDate ? new Date(startDate) : undefined, endDate ? new Date(endDate) : undefined)
+    }
+
+    @Post('simular-emision')
+    // @UseGuards(AuthGuard('jwt'))
+    async simularEmision(
+        // @Req() req,
+        @Body() factura: SimularEmision
+    ): Promise<void> {
+        await this.comprobanteService.simularEmision(factura.connectionId);
+        // await this.comprobanteService.saveFactura(factura, req.user.user._id);
     }
 
 }
