@@ -10,6 +10,7 @@ import { ComprobanteController } from './comprobante.controller';
 import { EmpresaModule } from 'src/empresa/empresa.module';
 import { UserModule } from 'src/user/user.module';
 import { ClienteModule } from 'src/cliente/cliente.module';
+import { SocketsModule } from 'src/sockets/sockets.module';
 
 @Module({
     imports: [
@@ -22,7 +23,8 @@ import { ClienteModule } from 'src/cliente/cliente.module';
         ]),
         EmpresaModule,
         UserModule,
-        ClienteModule
+        ClienteModule,
+        SocketsModule
     ],
     providers: [ComprobanteService],
     exports: [ComprobanteService],

@@ -16,6 +16,7 @@ import { GetClientDto } from 'src/cliente/dto/get-client.dto';
 import { GetFacturaEmitidaDto } from './dto/get-factura-emitida.dto';
 import { IGenericResponse } from 'src/types/general';
 import { sendMessage } from 'src/helpers/websocket.helper';
+import { SocketsService } from 'src/sockets/sockets.service';
 
 @Injectable()
 export class ComprobanteService {
@@ -33,6 +34,7 @@ export class ComprobanteService {
         private readonly empresaService: EmpresaService,
         private readonly userService: UserService,
         private readonly clienteService: ClienteService,
+        private readonly sockesService: SocketsService
     ) { }
 
     async getFacturaByClaveAcceso(claveAcceso: string): Promise<FacturaEmitida> {
@@ -351,8 +353,9 @@ export class ComprobanteService {
         return firstDay;
     }
 
-    async simularEmision(connectionId: string): Promise<IGenericResponse> {
-        console.log('Simulando emisión para:', connectionId);
+    async simularEmision(usuarioId: string): Promise<IGenericResponse> {
+        const connectionId = await this.sockesService.getConnectionIdByUserId(usuarioId);
+        console.log('Simulando emisión para:', connectionId, usuarioId);
 
         await sendMessage(connectionId, '✅ Firmando electrónicamente...', 'estadoFactura');
         await new Promise(res => setTimeout(res, 2000));

@@ -15,6 +15,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { XmlSignerModule } from './xml-signer/xml-signer.module';
 import { BookModule } from './book/book.module';
 import { AuthorModule } from './author/author.module';
+import { SocketsModule } from './sockets/sockets.module';
 
 @Module({
     imports: [
@@ -36,7 +37,8 @@ import { AuthorModule } from './author/author.module';
         DashboardModule,
         XmlSignerModule,
         BookModule,
-        AuthorModule
+        AuthorModule,
+        SocketsModule
     ],
 })
 export class AppModule { }

@@ -12,13 +12,13 @@ export class ComprobanteController {
     ) { }
 
     @Post('factura')
-    // @UseGuards(AuthGuard('jwt'))
+    @UseGuards(AuthGuard('jwt'))
     async saveFactura(
-        // @Req() req,
+        @Req() req,
         @Body() factura: ComprobanteDto
     ): Promise<void> {
-        await this.comprobanteService.saveFactura(factura, '5ee051bb29c5d22658370396');
-        // await this.comprobanteService.saveFactura(factura, req.user.user._id);
+        // await this.comprobanteService.saveFactura(factura, '5ee051bb29c5d22658370396');
+        await this.comprobanteService.saveFactura(factura, req.user.user._id);
     }
 
     @Get('current-date')
@@ -42,12 +42,11 @@ export class ComprobanteController {
     }
 
     @Post('simular-emision')
-    // @UseGuards(AuthGuard('jwt'))
+    @UseGuards(AuthGuard('jwt'))
     async simularEmision(
-        // @Req() req,
-        @Body() factura: SimularEmision
+        @Req() req,
     ): Promise<void> {
-        await this.comprobanteService.simularEmision(factura.connectionId);
+        await this.comprobanteService.simularEmision(req.user.user._id as string);
         // await this.comprobanteService.saveFactura(factura, req.user.user._id);
     }
 

@@ -1,9 +1,9 @@
 import * as AWS from 'aws-sdk';
 
 export const sendMessage = async (connectionId: string, message: string, type: string) => {
+    const socketUrl = process.env.SOCKET_URL;
     const apigwManagementApi = new AWS.ApiGatewayManagementApi({
-        endpoint: `https://66gubfwnhb.execute-api.us-east-1.amazonaws.com/dev`,
-        // endpoint: `https://${domainName}/${stage}`,
+        endpoint: socketUrl,
     });
 
     try {
