@@ -4,7 +4,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 import { TipoProducto } from './schemas/tipoProducto.schema';
 import { TarifaIva } from './schemas/tarifaIva.schema';
-import { IGetTarifaIvaResponse, IGetTipoIdentificacionResponse, IGetTipoProductoResponse } from './dto/get-tipo-identificacion.dto';
+import { IGetTarifaIvaResponse, IGetTipoFormaPagoResponse, IGetTipoIdentificacionResponse, IGetTipoProductoResponse } from './dto/get-tipo-identificacion.dto';
+import { TipoFormaPago } from './schemas/tipoFormaPago.schema';
 
 @Injectable()
 export class GeneralService {
@@ -15,6 +16,8 @@ export class GeneralService {
         private tipoProductoModel: mongoose.Model<TipoProducto>,
         @InjectModel('TarifaIva')
         private tarifaIvaModel: mongoose.Model<TarifaIva>,
+        @InjectModel('TipoFormaPago')
+        private tipoFormaPagoModel: mongoose.Model<TipoFormaPago>,
     ) { }
 
     async getAllTipoIdentificacion(): Promise<IGetTipoIdentificacionResponse[]> {
@@ -38,6 +41,14 @@ export class GeneralService {
         return tarifasIva.map(tipo => ({
             codigo: tipo.codigo,
             porcentaje: tipo.porcentaje,
+        }));
+    }
+
+    async getAllTipoFormaPago(): Promise<IGetTipoFormaPagoResponse[]> {
+        const tiposFormaPago = await this.tipoFormaPagoModel.find({ activo: true }).exec();
+        return tiposFormaPago.map(tipo => ({
+            codigo: tipo.codigo,
+            formaPago: tipo.formaPago,
         }));
     }
 

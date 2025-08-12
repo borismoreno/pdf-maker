@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { GeneralService } from './general.service';
-import { IGetTarifaIvaResponse, IGetTipoIdentificacionResponse, IGetTipoProductoResponse } from './dto/get-tipo-identificacion.dto';
+import { IGetTarifaIvaResponse, IGetTipoFormaPagoResponse, IGetTipoIdentificacionResponse, IGetTipoProductoResponse } from './dto/get-tipo-identificacion.dto';
 
 @Controller('general')
 export class GeneralController {
@@ -21,5 +21,10 @@ export class GeneralController {
     @Get('tarifa-iva')
     async getAllTarifaIva(): Promise<IGetTarifaIvaResponse[]> {
         return this.generalService.getAllTarifaIva();
+    }
+
+    @Get('tipo-formaPago')
+    async getAllTipoFormaPago(): Promise<IGetTipoFormaPagoResponse[]> {
+        return await this.generalService.getAllTipoFormaPago();
     }
 }

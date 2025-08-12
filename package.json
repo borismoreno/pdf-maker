@@ -11,6 +11,7 @@
     "scripts": {
         "build": "nest build",
         "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+        "dev": "npm run build && sls offline",
         "start": "nest start",
         "start:dev": "nest start --watch",
         "start:debug": "nest start --debug --watch --inspect-brk=0.0.0.0:9229",

@@ -12,3 +12,8 @@ export interface IGetTarifaIvaResponse {
     codigo: string;
     porcentaje: string;
 }
+
+export interface IGetTipoFormaPagoResponse {
+    codigo: string;
+    formaPago: string;
+}

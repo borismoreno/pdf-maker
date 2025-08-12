@@ -5,13 +5,15 @@ import { GeneralService } from './general.service';
 import { TipoProductoSchema } from './schemas/tipoProducto.schema';
 import { TarifaIvaSchema } from './schemas/tarifaIva.schema';
 import { GeneralController } from './general.controller';
+import { TipoFormaPagoSchema } from './schemas/tipoFormaPago.schema';
 
 @Module({
     imports: [
         MongooseModule.forFeature([
             { name: 'TipoIdentificacion', schema: TipoIdentificacionSchema },
             { name: 'TipoProducto', schema: TipoProductoSchema },
-            { name: 'TarifaIva', schema: TarifaIvaSchema }
+            { name: 'TarifaIva', schema: TarifaIvaSchema },
+            { name: 'TipoFormaPago', schema: TipoFormaPagoSchema }
         ])
     ],
     providers: [GeneralService],
