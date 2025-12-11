@@ -17,18 +17,27 @@ import { GetFacturaEmitidaDto } from './dto/get-factura-emitida.dto';
 import { IGenericResponse } from 'src/types/general';
 import { sendMessage } from 'src/helpers/websocket.helper';
 import { SocketsService } from 'src/sockets/sockets.service';
+import { NotaCreditoEmitida } from './schemas/notaCreditoEmitida.schema';
+import { DetalleNotaCreditoEmitida } from './schemas/detalleNotaCreditoEmitida.schema';
+import { DatoAdicionalNotaCredito } from './schemas/datoAdicionalNotaCredito.schema';
 
 @Injectable()
 export class ComprobanteService {
     constructor(
         @InjectModel(FacturaEmitida.name)
         private facturaEmitidaModel: mongoose.Model<FacturaEmitida>,
+        @InjectModel(NotaCreditoEmitida.name)
+        private notaCreditoEmitidaModel: mongoose.Model<NotaCreditoEmitida>,
         @InjectModel(DetalleFacturaEmitida.name)
         private detalleFacturaEmitidaModel: mongoose.Model<DetalleFacturaEmitida>,
+        @InjectModel(DetalleNotaCreditoEmitida.name)
+        private detalleNotaCreditoEmitidaModel: mongoose.Model<DetalleNotaCreditoEmitida>,
         @InjectModel(FormaPagoFactura.name)
         private formaPagoFacturaModel: mongoose.Model<FormaPagoFactura>,
         @InjectModel(DatoAdicionalFactura.name)
         private datoAdicionalFacturaModel: mongoose.Model<DatoAdicionalFactura>,
+        @InjectModel(DatoAdicionalNotaCredito.name)
+        private datoAdicionalNotaCreditoModel: mongoose.Model<DatoAdicionalNotaCredito>,
         @InjectModel(ImpuestoComprobante.name)
         private impuestoComprobanteModel: mongoose.Model<ImpuestoComprobante>,
         private readonly empresaService: EmpresaService,
@@ -42,8 +51,23 @@ export class ComprobanteService {
         return factura;
     }
 
+    async getFacturaById(id: mongoose.Types.ObjectId): Promise<FacturaEmitida> {
+        const factura = await this.facturaEmitidaModel.findById(id)
+        return factura;
+    }
+
+    async getNotaCreditoByClaveAcceso(claveAcceso: string): Promise<NotaCreditoEmitida> {
+        const notaCredito = await this.notaCreditoEmitidaModel.findOne({ claveAcceso }).exec();
+        return notaCredito;
+    }
+
     async getDetallesFactura(facturaEmitida: mongoose.Types.ObjectId): Promise<DetalleFacturaEmitida[]> {
         const detalles = await this.detalleFacturaEmitidaModel.find({ facturaEmitida }).exec();
+        return detalles;
+    }
+
+    async getDetallesNotaCredito(notaCreditoEmitida: mongoose.Types.ObjectId): Promise<DetalleNotaCreditoEmitida[]> {
+        const detalles = await this.detalleNotaCreditoEmitidaModel.find({ notaCreditoEmitida }).exec();
         return detalles;
     }
 
@@ -54,6 +78,11 @@ export class ComprobanteService {
 
     async getDatosAdicionalesFactura(facturaEmitida: mongoose.Types.ObjectId): Promise<DatoAdicionalFactura[]> {
         const datosAdicionales = await this.datoAdicionalFacturaModel.find({ facturaEmitida }).exec();
+        return datosAdicionales;
+    }
+
+    async getDatosAdicionalesNotaCredito(notaCreditoEmitida: mongoose.Types.ObjectId): Promise<DatoAdicionalNotaCredito[]> {
+        const datosAdicionales = await this.datoAdicionalNotaCreditoModel.find({ notaCreditoEmitida }).exec();
         return datosAdicionales;
     }
 

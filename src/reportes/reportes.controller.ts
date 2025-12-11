@@ -25,6 +25,26 @@ export class ReportesController {
         pdfDoc.end();
     }
 
+    @Get('notaCredito/:claveAcceso')
+    async getNotaCredito(
+        @Param('claveAcceso') claveAcceso
+    ): Promise<string> {
+        const pdfDoc = await this.reportesService.getNotaCredito(claveAcceso);
+        return pdfDoc;
+    }
+
+    @Get('notaCredito/test/:claveAcceso')
+    async getNotaCreditoTest(
+        @Param('claveAcceso') claveAcceso,
+        @Res() response: Response
+    ) {
+        const pdfDoc = await this.reportesService.getNotaCreditoTest(claveAcceso);
+        response.setHeader('Content-Type', 'application/pdf');
+        pdfDoc.info.Title = 'NotaCredito';
+        pdfDoc.pipe(response);
+        pdfDoc.end();
+    }
+
     // @Get('getTest/:claveAcceso')
     // async getTest(
     //     @Param('claveAcceso') claveAcceso

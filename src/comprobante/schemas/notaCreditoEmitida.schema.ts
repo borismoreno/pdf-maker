@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
 
 @Schema()
-export class FacturaEmitida {
+export class NotaCreditoEmitida {
     @Prop({ type: mongoose.Types.ObjectId })
     _id: mongoose.Types.ObjectId;
     @Prop()
@@ -46,22 +46,27 @@ export class FacturaEmitida {
     @Prop()
     totalSinImpuestos: string;
     @Prop()
+    codDocModificado: string;
+    @Prop()
+    numDocModificado: string;
+    @Prop()
+    fechaEmisionDocSustento: string;
+    @Prop()
+    valorModificacion: string;
+    @Prop()
     totalDescuento: string;
     @Prop()
-    propina: string;
+    motivo: string;
     @Prop()
     totalIva: string;
-    @Prop()
-    importeTotal: string;
     @Prop()
     moneda: string;
     @Prop()
     estadoComprobante: string;
     @Prop()
     usuario: string;
-    @Prop({ type: mongoose.Types.ObjectId, ref: 'Cliente' })
-    cliente: string;
+    @Prop({ type: mongoose.Types.ObjectId, ref: 'FacturaEmitida' })
+    facturaEmitida: string;
 }
 
-export const FacturaEmitidaSchema = SchemaFactory.createForClass(FacturaEmitida);
-
+export const NotaCreditoEmitidaSchema = SchemaFactory.createForClass(NotaCreditoEmitida);

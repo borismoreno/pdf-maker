@@ -6,14 +6,21 @@ import { Cliente } from 'src/cliente/schemas/cliente.schema';
 import { ComprobanteService } from 'src/comprobante/comprobante.service';
 import { FacturaEmitida } from 'src/comprobante/schemas/facturaEmitida.schema';
 import { ImpuestoComprobante } from 'src/comprobante/schemas/impuestoComprobante.schema';
+import { NotaCreditoEmitida } from 'src/comprobante/schemas/notaCreditoEmitida.schema';
 import { tiposIdentificacion, tiposFormaPago } from 'src/constants/comprobantes.constants';
 import { PrinterService } from 'src/printer/printer.service';
 import { getFactura } from 'src/reports/factura';
-import { IDatoAdicionalFactura, IDetalleFactura, IFacturaInfo, IFormaPagoFactura } from 'src/types/reports';
+import { getNotaCredito } from 'src/reports/notaCredito';
+import { IDatoAdicionalFactura, IDatoAdicionalNotaCredito, IDetalleFactura, IDetalleNotaCredito, IFacturaInfo, IFormaPagoFactura, INotaCreditoInfo } from 'src/types/reports';
 import { UploadService } from 'src/upload/upload.service';
 
 interface DetallesFactura {
     detalles: IDetalleFactura[];
+    impuestos: ImpuestoComprobante[];
+}
+
+interface DetallesNotaCredito {
+    detalles: IDetalleNotaCredito[];
     impuestos: ImpuestoComprobante[];
 }
 
@@ -70,6 +77,27 @@ export class ReportesService {
         return pdfDoc;
     }
 
+    async getNotaCredito(claveAcceso: string): Promise<string> {
+        // const encontrado = await this.uploadService.obtenerArchivo(`${claveAcceso}-pdf`);
+        // if (encontrado) return `${encontrado}`;
+        const notaCredito = await this.getNotaCreditoInfo(claveAcceso);
+        const docDefinition = await getNotaCredito({
+            notaCredito
+        });
+        const pdfDoc = this.printerService.createPdf(docDefinition);
+        const buffs = await this.getBuffer(pdfDoc);
+        const res = await this.uploadService.upload(`pdf/${notaCredito.claveAcceso}`, buffs, 'application/pdf');
+        return res;
+    }
+
+    async getNotaCreditoTest(claveAcceso: string) {
+        const docDefinition = await getNotaCredito({
+            notaCredito: await this.getNotaCreditoInfo(claveAcceso)
+        });
+        const pdfDoc = this.printerService.createPdf(docDefinition);
+        return pdfDoc;
+    }
+
     getValores(impuestos: ImpuestoComprobante[]): DetalleValores {
         let subtotalCero = 0;
         let subtotalExcento = 0;
@@ -111,6 +139,58 @@ export class ReportesService {
             valorIva,
             valorTotal
         };
+    }
+
+    async getNotaCreditoInfo(claveAcceso: string): Promise<INotaCreditoInfo> {
+        let notaCreditoInfo: INotaCreditoInfo = null
+        const notaCredito = await this.comprobanteService.getNotaCreditoByClaveAcceso(claveAcceso)
+        if (notaCredito) {
+            const facturaEmitida = await this.comprobanteService.getFacturaById(new mongoose.Types.ObjectId(notaCredito.facturaEmitida))
+            if (facturaEmitida) {
+                const cliente: GetClientDto = await this.clienteService.findClienteById(new mongoose.Types.ObjectId(facturaEmitida.cliente))
+                const { detalles, impuestos } = await this.getDetallesNotaCredito(notaCredito);
+                const { subtotalIva, subtotalCero, subtotalNoImpuesto, subtotalSinImpuestos, subtotalExcento, valorIva, valorTotal } = this.getValores(impuestos);
+                let valorDescuento = 0;
+                for (const detalle of detalles) {
+                    valorDescuento += Number(detalle.descuento);
+                }
+                const datosAdicionales: IDatoAdicionalNotaCredito[] = await this.getDatosAdicionalesNotaCredito(notaCredito);
+                notaCreditoInfo = {
+                    ruc: notaCredito.ruc,
+                    numeroNotaCredito: `${notaCredito.estab}-${notaCredito.ptoEmi}-${notaCredito.secuencial}`,
+                    fecha: notaCredito.fechaEmision,
+                    claveAcceso: notaCredito.claveAcceso,
+                    razonSocial: notaCredito.razonSocial,
+                    nombreComercial: notaCredito.nombreComercial,
+                    direccionEstablecimiento: notaCredito.dirEstablecimiento,
+                    contribuyenteEspecial: notaCredito.contribuyenteEspecial,
+                    obligadoContabilidad: notaCredito.obligadoContabilidad,
+                    contribuyenteRimpe: notaCredito.contribuyenteRimpe,
+                    ambiente: notaCredito.ambiente === '2' ? 'PRODUCCION' : 'PRUEBAS',
+                    razonCliente: notaCredito.razonSocialComprador,
+                    tipoIdentificacionCliente: tiposIdentificacion.find(f => f.codigo === notaCredito.tipoIdentificacionComprador).descripcion,
+                    identificacionCliente: notaCredito.identificacionComprador,
+                    direccionCliente: cliente.direccion,
+                    telefonoCliente: cliente.telefono,
+                    emailCliente: cliente.mail.split(',').join('\n'),
+                    comprobanteModificado: `${facturaEmitida.estab}-${facturaEmitida.ptoEmi}-${facturaEmitida.secuencial}`,
+                    fechaEmisionModificado: facturaEmitida.fechaEmision,
+                    motivoModificacion: notaCredito.motivo,
+                    subTotalCero: subtotalCero.toFixed(2),
+                    subTotalIva: subtotalIva.toFixed(2),
+                    subTotalNoImpuesto: subtotalNoImpuesto.toFixed(2),
+                    subTotalExcento: subtotalExcento.toFixed(2),
+                    valorDescuento: valorDescuento.toFixed(2),
+                    subTotalSinImpuesto: subtotalSinImpuestos.toFixed(2),
+                    valorIva: valorIva.toFixed(2),
+                    valorTotal: valorTotal.toFixed(2),
+                    pathPdf: `https://imageneschatecuador.s3.us-east-2.amazonaws.com/${notaCredito.claveAcceso}-pdf`,
+                    detalles,
+                    datosAdicionales
+                }
+            }
+        }
+        return notaCreditoInfo
     }
 
     async getFacturaInfo(claveAcceso: string): Promise<IFacturaInfo> {
@@ -162,6 +242,26 @@ export class ReportesService {
         return facturaInfo;
     }
 
+    async getDetallesNotaCredito(notaCredito: NotaCreditoEmitida): Promise<DetallesNotaCredito> {
+        let detalles: IDetalleNotaCredito[] = [];
+        const detallesRes = await this.comprobanteService.getDetallesNotaCredito(notaCredito._id);
+        let impuestos: ImpuestoComprobante[] = [];
+        if (detallesRes) {
+            for (const detalle of detallesRes) {
+                const impuesto = await this.comprobanteService.getImpuestosComprobanteDetalle(detalle._id);
+                impuestos.push(impuesto);
+                detalles.push({
+                    descripcion: detalle.descripcion,
+                    cantidad: detalle.cantidad,
+                    descuento: detalle.descuento,
+                    precioUnitario: detalle.precioUnitario,
+                    totalSinImpuesto: detalle.precioTotalSinImpuesto
+                })
+            }
+        }
+        return { detalles, impuestos };
+    }
+
     async getDetalles(factura: FacturaEmitida): Promise<DetallesFactura> {
         let detalles: IDetalleFactura[] = [];
         const detallesRes = await this.comprobanteService.getDetallesFactura(factura._id);
@@ -200,6 +300,20 @@ export class ReportesService {
     async getDatosAdicionales(factura: FacturaEmitida): Promise<IDatoAdicionalFactura[]> {
         const datosAdicionales: IDatoAdicionalFactura[] = [];
         const datosAdicionalesRes = await this.comprobanteService.getDatosAdicionalesFactura(factura._id);
+        if (datosAdicionales) {
+            datosAdicionalesRes.forEach(datoAdicional => {
+                datosAdicionales.push({
+                    nombre: datoAdicional.nombreAdicional,
+                    valor: datoAdicional.valorAdicional
+                });
+            });
+        }
+        return datosAdicionales;
+    }
+
+    async getDatosAdicionalesNotaCredito(notaCredito: NotaCreditoEmitida): Promise<IDatoAdicionalNotaCredito[]> {
+        const datosAdicionales: IDatoAdicionalNotaCredito[] = [];
+        const datosAdicionalesRes = await this.comprobanteService.getDatosAdicionalesNotaCredito(notaCredito._id);
         if (datosAdicionales) {
             datosAdicionalesRes.forEach(datoAdicional => {
                 datosAdicionales.push({
